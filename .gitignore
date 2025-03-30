@@ -1,3 +1,5 @@
+.git
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -129,7 +131,8 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+.venv/
+!.venv/htf.txt
 env/
 venv/
 ENV/
