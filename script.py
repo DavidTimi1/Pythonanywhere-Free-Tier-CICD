@@ -1,10 +1,12 @@
 import os
 import requests
 from ignore import is_ignored, get_ignore_exemptions, get_changed_files_with_tag
+from dotenv import load_dotenv
 
-# Replace these with your PythonAnywhere API token and username
-API_TOKEN = os.environ.get("API_TOKEN")
-USERNAME = os.environ.get("USERNAME")
+load_dotenv()
+
+API_TOKEN = os.environ.get("PYTHONANYWHERE_API_TOKEN")
+USERNAME = os.environ.get("PYTHONANYWHERE_USERNAME")
 
 
 def upload_file_to_pythonanywhere(file_path, destination_path):
@@ -70,17 +72,12 @@ def sync_with_pythonanywhere(project_dir, destination_dir):
         relative_path = os.path.relpath(file_path, project_dir)
         remote_path = os.path.join(destination_dir, relative_path).replace("\\", "/")
 
-        if status == "D":
-            # File was deleted locally, delete it remotely
+        if status in ['D', 'M', 'R']:
+            # File was deleted locally, modified or renamed, delete it remotely
             delete_file_from_pythonanywhere(remote_path)
-        elif status in {"M", "R"}:
-            # File was modified or renamed, delete the old version remotely
-            delete_file_from_pythonanywhere(remote_path)
+
+        if status in ['M', 'R', 'A']:
             # Upload the new version
-            if not is_ignored(file_path):
-                upload_file_to_pythonanywhere(file_path, remote_path)
-        elif status == "A":
-            # File was added locally, upload it
             if not is_ignored(file_path):
                 upload_file_to_pythonanywhere(file_path, remote_path)
 
@@ -103,7 +100,10 @@ def delete_file_from_pythonanywhere(remote_path):
 
 
 # Example usage
-project_directory = input("Enter the path to your project directory: ")
-destination_directory = f"/home/{USERNAME}/mysite"
-sync_with_pythonanywhere(project_directory, destination_directory)
-print("Done")
+project_directory = input("Enter the path to your project directory: ") or '.'
+destination_directory = input(f"Enter the path to your destination directory: /home/{USERNAME}/") or "mysite"
+
+destination_path = f"/home/{USERNAME}/{destination_directory}"
+sync_with_pythonanywhere(project_directory, destination_path)
+
+print("Done syncing with PythonAnywhere :)")
