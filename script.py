@@ -70,9 +70,6 @@ def sync_with_pythonanywhere(project_dir, destination_dir):
         relative_path = os.path.relpath(file_path, project_dir)
         remote_path = os.path.join(destination_dir, relative_path).replace("\\", "/")
 
-        print(f"Processing file '{file_path}' with status '{status}'...")
-        continue
-
         if status == "D":
             # File was deleted locally, delete it remotely
             delete_file_from_pythonanywhere(remote_path)
